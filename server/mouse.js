@@ -20,11 +20,11 @@ class Mouse {
 	}
 
 	_onResponse(res){
-		console.log("Output: " + res);
+		console.log("Moving mouse " + res);
 	}
 
 	_onError(res){
-		console.log("Error: " + res);
+		//console.log("Error: " + res);
 	}
 
 	_onFinish(){

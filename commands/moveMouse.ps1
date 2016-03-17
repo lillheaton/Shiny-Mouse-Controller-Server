@@ -10,8 +10,7 @@ Add-Type -AssemblyName System.Windows.Forms
 # Get current Position
 $CurrentPos = [System.Windows.Forms.Cursor]::Position
 
-echo $Left
-echo $Top
+echo "$Left x $Top"
 
 # Move mouse
 [System.Windows.Forms.Cursor]::Position = New-Object System.Drawing.Point(($CurrentPos.X + $Left) , ($CurrentPos.Y + $Top))
