@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="Joystick">
+        <attr name="outerRingStrokeSize" format="dimension" />
+        <attr name="joystickSize" format="float" />
+        <attr name="joystickColor" format="color" />
+    </declare-styleable>
+</resources>
