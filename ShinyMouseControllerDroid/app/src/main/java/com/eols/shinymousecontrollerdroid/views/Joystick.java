@@ -5,8 +5,11 @@ import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Point;
+import android.graphics.PointF;
 import android.graphics.RectF;
 import android.util.AttributeSet;
+import android.view.MotionEvent;
 import android.view.View;
 
 import com.eols.shinymousecontrollerdroid.R;
@@ -23,7 +26,9 @@ public class Joystick extends View {
     private Paint outerCirlcePaint;
     private Paint innerCirclePaint;
     private int w, h;
-    private float centerW, centerH;
+    private float centerW, centerH, innerW, innerH, innerRadius, joystickRadius;
+    private PointF joystickPoint;
+    private boolean dragging = false;
 
     public Joystick(Context context) {
         super(context);
@@ -81,13 +86,11 @@ public class Joystick extends View {
     }
 
     private void drawInnerCircle(Canvas canvas) {
-        float innerW = this.w * this.joystickSize, innerH = this.h * this.joystickSize;
-
         RectF rect = new RectF(
-                centerW - innerW / 2f,
-                centerH - innerH / 2f,
-                centerW + innerW / 2f,
-                centerH + innerH / 2f);
+                this.joystickPoint.x - innerRadius,
+                this.joystickPoint.y - innerRadius,
+                this.joystickPoint.x + innerRadius,
+                this.joystickPoint.y + innerRadius);
 
         canvas.drawArc(rect, 0, 360, false, innerCirclePaint);
     }
@@ -106,7 +109,44 @@ public class Joystick extends View {
         this.h = h;
         this.centerW = w / 2f;
         this.centerH = h / 2f;
+        this.joystickPoint = new PointF(centerW, centerH);
+        this.innerW = this.w * this.joystickSize;
+        this.innerH = this.h * this.joystickSize;
+        this.innerRadius = innerW / 2f;
+        this.joystickRadius = centerW - innerRadius;
+
 
         super.onSizeChanged(w, h, oldw, oldh);
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+
+        if(event.getAction() == MotionEvent.ACTION_DOWN)
+            dragging = true;
+        else if(event.getAction() == MotionEvent.ACTION_UP){
+            dragging = false;
+        }
+
+        if(dragging){
+
+            float xDist = event.getX() - centerW;
+            float yDist = event.getY() - centerH;
+            double dist = Math.sqrt(Math.pow(xDist, 2.0) + Math.pow(yDist, 2.0));
+
+            if(dist > joystickRadius){
+                float fraction = joystickRadius / (float)dist;
+                this.joystickPoint.set((event.getX() - centerW) * fraction + centerW, (event.getY() - centerH) * fraction + centerW);
+            }
+            else {
+                this.joystickPoint.set(event.getX(), event.getY());
+            }
+
+            this.invalidate();
+        } else {
+            this.joystickPoint.set(centerW, centerH);
+        }
+
+        return true;
     }
 }
