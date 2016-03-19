@@ -5,7 +5,6 @@ import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.Point;
 import android.graphics.PointF;
 import android.graphics.RectF;
 import android.util.AttributeSet;
@@ -169,7 +168,7 @@ public class Joystick extends View {
 
         // Call the listeners
         for (JoystickListener jl : listeners)
-            jl.onTouch(magnitude, angleVector);
+            jl.onJoystickTouch(magnitude, angleVector);
 
         return true;
     }

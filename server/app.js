@@ -36,11 +36,11 @@ var server = net.createServer(socket => {
 
 	socket.on('data', data => {
 		var obj = JSON.parse(data);
-
-		if(obj.type === "vector"){
+		console.log(obj);
+		/*if(obj.type === "vector"){
 			mouse.move(new Vector(obj.x, obj.y));
 			
-		}
+		}*/
 	});
 
 	socket.on('end', () => {
@@ -53,7 +53,7 @@ var server = net.createServer(socket => {
 	});
 });
 
-server.listen(1337, '127.0.0.1');
+server.listen(1337, '10.0.0.34');
 
 server.on('listening', () => {
 	console.log("TCP server listening on 127.0.0.1:1337");
