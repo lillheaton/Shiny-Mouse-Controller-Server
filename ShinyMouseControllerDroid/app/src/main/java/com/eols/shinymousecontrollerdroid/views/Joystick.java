@@ -13,11 +13,17 @@ import android.view.MotionEvent;
 import android.view.View;
 
 import com.eols.shinymousecontrollerdroid.R;
+import com.eols.shinymousecontrollerdroid.interfaces.JoystickListener;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by emiols on 2016-03-18.
  */
 public class Joystick extends View {
+
+    private List<JoystickListener> listeners = new ArrayList<>();
 
     private float outerCircleStrokeWidth;
     private float joystickSize;
@@ -43,6 +49,13 @@ public class Joystick extends View {
         super(context, attrs, defStyleAttr);
         this.init(context, attrs);
     }
+
+    public void addListener(JoystickListener listener){
+        this.listeners.add(listener);
+    }
+
+
+
 
 
     private void init(Context context, AttributeSet attrs) {
@@ -128,11 +141,18 @@ public class Joystick extends View {
             dragging = false;
         }
 
+        float magnitude = 0;
+        PointF angleVector = new PointF(0, 0);
+
         if(dragging){
 
             float xDist = event.getX() - centerW;
             float yDist = event.getY() - centerH;
             double dist = Math.sqrt(Math.pow(xDist, 2.0) + Math.pow(yDist, 2.0));
+
+            float angle = (float)Math.atan2(yDist, xDist);
+            angleVector.set((float)Math.cos(angle), (float)Math.sin(angle));
+            magnitude = (float)dist;
 
             if(dist > joystickRadius){
                 float fraction = joystickRadius / (float)dist;
@@ -146,6 +166,10 @@ public class Joystick extends View {
         } else {
             this.joystickPoint.set(centerW, centerH);
         }
+
+        // Call the listeners
+        for (JoystickListener jl : listeners)
+            jl.onTouch(magnitude, angleVector);
 
         return true;
     }
