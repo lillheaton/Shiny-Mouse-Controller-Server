@@ -3,33 +3,30 @@
 // TODO: Fix this npm package
 /*var shell = require('node-powershell');*/
 
-/*var express = require('express');
-
-var Mouse = require('./mouse.js');
-var Vector = require('./vector.js')
-
-var app = express();
-var mouse = new Mouse();
-
-app.get('/', (req, res) => {
-	res.send('Hello World!');
-});
-
-app.get('/move/left/:left/top/:top', (req, res) => {
-	res.send(`You want to move ${req.params.left} to left and ${req.params.top} top`);
-	mouse.move(new Vector(req.params.left, req.params.top));
-});
-
-app.listen(8080, () => {
-	console.log('Start listen on localhost:8080...');
-});
-*/
-
 var net = require('net');
+var os = require('os');
+
 var Mouse = require('./mouse.js');
 var Vector = require('./vector.js')
 
+
+function _getLocalIp() {
+	var networkInterfaces = os.networkInterfaces();
+
+	for (var k in networkInterfaces){
+		for (var k2 in networkInterfaces[k]){
+			var address = networkInterfaces[k][k2];
+			if(address.family === 'IPv4' && !address.internal){
+				// Take the first in the list
+				return address.address;
+			}
+		}
+	}
+};
+
+
 var mouse = new Mouse();
+var listeningIp = _getLocalIp();
 
 var server = net.createServer(socket => {
 	socket.write('Echo server\r\n');
@@ -37,10 +34,11 @@ var server = net.createServer(socket => {
 	socket.on('data', data => {
 		var obj = JSON.parse(data);
 		console.log(obj);
-		/*if(obj.type === "vector"){
-			mouse.move(new Vector(obj.x, obj.y));
-			
-		}*/
+
+		if(obj.type === "joystick"){
+			var angleVector = new Vector(obj.vector.x, obj.vector.y);
+			mouse.move(angleVector.multiply(obj.magnitude));
+		}
 	});
 
 	socket.on('end', () => {
@@ -53,10 +51,10 @@ var server = net.createServer(socket => {
 	});
 });
 
-server.listen(1337, '10.0.0.34');
+server.listen(1337, listeningIp);
 
 server.on('listening', () => {
-	console.log("TCP server listening on 127.0.0.1:1337");
+	console.log(`TCP server listening on ${listeningIp}:1337`);
 });
 
 server.on('error', error => {
