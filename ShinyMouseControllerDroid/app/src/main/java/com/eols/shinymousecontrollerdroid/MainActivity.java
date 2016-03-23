@@ -1,9 +1,13 @@
 package com.eols.shinymousecontrollerdroid;
 
 import android.graphics.PointF;
+import android.net.wifi.WifiInfo;
+import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.format.Formatter;
+import android.util.Log;
 import android.widget.TextView;
 
 import com.eols.shinymousecontrollerdroid.interfaces.JoystickListener;
@@ -11,11 +15,18 @@ import com.eols.shinymousecontrollerdroid.interfaces.TCPListener;
 import com.eols.shinymousecontrollerdroid.utils.TCPClient;
 import com.eols.shinymousecontrollerdroid.views.Joystick;
 
+import java.math.BigInteger;
+import java.net.Inet4Address;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.nio.ByteOrder;
+
 public class MainActivity extends AppCompatActivity implements JoystickListener {
 
     private Joystick joystickView;
     private TextView outputView;
 
+    private String connectIpAddress;
     private TCPClient tcpClient;
 
     @Override
@@ -27,6 +38,8 @@ public class MainActivity extends AppCompatActivity implements JoystickListener 
         this.joystickView.addListener(this);
 
         this.outputView = (TextView)findViewById(R.id.output_txt);
+
+        this.connectIpAddress = getIntent().getStringExtra(ConnectActivity.EXTRA_IP_ADDRESS);
 
         // Start connect
         new connectTask().execute("");
@@ -57,7 +70,7 @@ public class MainActivity extends AppCompatActivity implements JoystickListener 
                 public void onMessageReceived(String message) {
                     publishProgress(message);
                 }
-            }, "10.0.0.34", 1337);
+            }, connectIpAddress, 1337);
             tcpClient.run();
 
             return null;
