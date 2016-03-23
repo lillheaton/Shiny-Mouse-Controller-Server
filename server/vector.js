@@ -11,6 +11,12 @@ class Vector {
 		this.y = this.y * scalar;
 		return this;
 	}
+
+	add(vector) {
+		this.x = this.x + vector.x;
+		this.y = this.y + vector.y;
+		return this;
+	}
 }
 
 module.exports = Vector;

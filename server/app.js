@@ -5,8 +5,9 @@
 
 var net = require('net');
 var os = require('os');
+var robot = require('robotjs');
 
-var Mouse = require('./mouse.js');
+//var Mouse = require('./mouse.js');
 var Vector = require('./vector.js')
 
 
@@ -25,19 +26,25 @@ function _getLocalIp() {
 };
 
 
-var mouse = new Mouse();
+//var mouse = new Mouse();
 var listeningIp = _getLocalIp();
 
 var server = net.createServer(socket => {
 	socket.write('Echo server\r\n');
 
 	socket.on('data', data => {
-		var obj = JSON.parse(data);
+		let obj = JSON.parse(data);
 		console.log(obj);
 
 		if(obj.type === "joystick"){
-			var angleVector = new Vector(obj.vector.x, obj.vector.y);
-			mouse.move(angleVector.multiply(obj.magnitude));
+			let angleVector = new Vector(obj.vector.x, obj.vector.y);
+
+			//mouse.move(angleVector.multiply(obj.magnitude));
+			let mousePos = robot.getMousePos();
+			let mouseVec = new Vector(mousePos.x, mousePos.y);
+			let newPos = mouseVec.add(angleVector.multiply(obj.magnitude));
+
+			robot.moveMouse(newPos.x, newPos.y);
 		}
 	});
 

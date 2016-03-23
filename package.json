@@ -5,7 +5,8 @@
   "main": "index.js",
   "dependencies": {
     "express": "^4.13.4",
-    "node-powershell": "^1.1.0"
+    "node-powershell": "^1.1.0",
+    "robotjs": "^0.3.7"
   },
   "devDependencies": {},
   "scripts": {
