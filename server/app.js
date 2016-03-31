@@ -1,55 +1,54 @@
 'use strict';
 
-// TODO: Fix this npm package
-/*var shell = require('node-powershell');*/
-
+// Npm packages
 var net = require('net');
-var os = require('os');
 var robot = require('robotjs');
 
-//var Mouse = require('./mouse.js');
-var Vector = require('./vector.js')
+// Own
+var Mouse = require('./mouse');
+var Vector = require('./vector');
+var Utils = require('./utils');
 
-
-function _getLocalIp() {
-	var networkInterfaces = os.networkInterfaces();
-
-	for (var k in networkInterfaces){
-		for (var k2 in networkInterfaces[k]){
-			var address = networkInterfaces[k][k2];
-			if(address.family === 'IPv4' && !address.internal){
-				// Take the first in the list
-				return address.address;
-			}
-		}
-	}
-};
-
-
-//var mouse = new Mouse();
-var listeningIp = _getLocalIp();
+var listeningIp = Utils.getLocalIp();
+var mouse = new Mouse();
 
 var server = net.createServer(socket => {
 	socket.write('Echo server\r\n');
+	mouse.start(); // Start the mouse loop
 
 	socket.on('data', data => {
-		let obj = JSON.parse(data);
-		console.log(obj);
-
-		if(obj.type === "joystick"){
-			let angleVector = new Vector(obj.vector.x, obj.vector.y);
-
-			//mouse.move(angleVector.multiply(obj.magnitude));
-			let mousePos = robot.getMousePos();
-			let mouseVec = new Vector(mousePos.x, mousePos.y);
-			let newPos = mouseVec.add(angleVector.multiply(obj.magnitude));
-
-			robot.moveMouse(newPos.x, newPos.y);
+		var data = data + "";
+		if(data === undefined || data === ""){
+			return;
 		}
+
+		data = data.replace(/(?:\r\n|\r|\n)/g, '');
+		data = '[' + data + ']';
+
+		var regex = new RegExp('} }', 'g');
+		data = data.replace(regex, '} },');
+		data = data.replace(',]', ']');
+
+		try{
+			let obj = JSON.parse(data);
+
+			for (var i = 0; i < obj.length; i++) {
+
+				switch(obj[i].type){
+					case "joystick":
+						mouse.target = new Vector(obj[i].vector.x, obj[i].vector.y);
+						mouse.force = obj[i].magnitude * 0.1; // decrease the force to 10%
+
+						break;
+				}
+
+			};
+		} catch(e){}
+		
 	});
 
 	socket.on('end', () => {
-		console.log(socket.remoteAddress + "left the room");
+		console.log(socket.remoteAddress + " left the room");
 	});
 
 	// Need to listen on this one, otherwise error will be thrown

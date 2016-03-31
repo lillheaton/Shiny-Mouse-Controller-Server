@@ -4,7 +4,9 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.DashPathEffect;
 import android.graphics.Paint;
+import android.graphics.Path;
 import android.graphics.PointF;
 import android.graphics.RectF;
 import android.util.AttributeSet;
@@ -71,6 +73,7 @@ public class Joystick extends View {
         this.outerCirlcePaint = new Paint();
         this.outerCirlcePaint.setAntiAlias(true);
         this.outerCirlcePaint.setStyle(Paint.Style.STROKE);
+        this.outerCirlcePaint.setPathEffect(new DashPathEffect(new float[] { 10f, 20f }, 0f));
         this.outerCirlcePaint.setStrokeWidth(outerCircleStrokeWidth);
         this.outerCirlcePaint.setColor(Color.parseColor("#000000"));
 
@@ -90,11 +93,17 @@ public class Joystick extends View {
         canvas.drawArc(rect, 0f, 360f, false, outerCirlcePaint);
 
         canvas.drawLines(
-                new float[] {
+                new float[]{
                         0, centerH, this.w, centerH,
                         centerW, 0, centerW, this.h
                 },
                 outerCirlcePaint);
+
+        float arrowSize = 10f;
+        drawArrow(canvas, new PointF(0, centerH), arrowSize, (byte) 0); // left
+        drawArrow(canvas, new PointF(this.w, centerH), arrowSize, (byte) 2); // right
+        drawArrow(canvas, new PointF(centerW, 0), arrowSize, (byte) 1);
+        drawArrow(canvas, new PointF(centerW, this.h), arrowSize, (byte) 3);
     }
 
     private void drawInnerCircle(Canvas canvas) {
@@ -105,6 +114,42 @@ public class Joystick extends View {
                 this.joystickPoint.y + innerRadius);
 
         canvas.drawArc(rect, 0, 360, false, innerCirclePaint);
+    }
+
+    private void drawArrow(Canvas canvas, PointF point, float size, byte direction){
+        PointF p1 = point, p2 = new PointF(), p3 = new PointF();
+
+        switch (direction){
+            case 0: // left
+                p2.set(point.x + size, point.y - size);
+                p3.set(point.x + size, point.y + size);
+                break;
+
+            case 1: // top
+                p2.set(point.x + size, point.y + size);
+                p3.set(point.x - size, point.y + size);
+                break;
+
+            case 2: // right
+                p2.set(point.x - size, point.y - size);
+                p3.set(point.x - size, point.y + size);
+                break;
+
+            case 3: // down
+                p2.set(point.x - size, point.y - size);
+                p3.set(point.x + size, point.y - size);
+                break;
+        }
+
+        Path path = new Path();
+        path.setFillType(Path.FillType.EVEN_ODD);
+        path.moveTo(p1.x, p1.y);
+        //path.lineTo(p1.x, p1.y);
+        path.lineTo(p2.x, p2.y);
+        path.lineTo(p3.x, p3.y);
+        path.close();
+
+        canvas.drawPath(path, innerCirclePaint);
     }
 
 
@@ -161,10 +206,11 @@ public class Joystick extends View {
                 this.joystickPoint.set(event.getX(), event.getY());
             }
 
-            this.invalidate();
         } else {
             this.joystickPoint.set(centerW, centerH);
         }
+
+        this.invalidate();
 
         // Call the listeners
         for (JoystickListener jl : listeners)

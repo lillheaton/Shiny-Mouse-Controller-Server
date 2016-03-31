@@ -1,39 +1,38 @@
 'use strict';
 
-// Path to moving mouse script
-const scriptPath = "C:/Workspace/MouseController/commands/moveMouse.ps1";
-
-let _spawn = require("child_process").spawn;
+var robot = require('robotjs');
+var Vector = require('./vector');
 
 class Mouse {
 	constructor(){
-		// Default attributes
-		this.scriptAttr = ["-ExecutionPolicy", "ByPass", "-File", scriptPath, "-Left", 0, "-Top", 0];
+		this._target = new Vector(0, 0);
+		this._force = 0;
+
+		robot.setMouseDelay(2);
 	}
 
-	_execute(){
-		// Execute script
-		this.child = _spawn("powershell.exe", this.scriptAttr);
-		this.child.stdout.on("data", this._onResponse);
-		this.child.stderr.on("data", this._onError);
-		this.child.on("exit", this._onFinish);
+	set force(value){
+		this._force = value;
 	}
 
-	_onResponse(res){
-		console.log("Moving mouse " + res);
+	set target(t){
+		if(!(t instanceof Vector)){
+			throw new Error("Target is not instance of Vector");
+		}
+
+		this._target = t;
 	}
 
-	_onError(res){
-		//console.log("Error: " + res);
-	}
+	start(){
+		console.log("Start mouse...");
 
-	_onFinish(){
-	}
+		var intval = setInterval(() => {
+			// Move towards target
+			let pos = new Vector(robot.getMousePos().x, robot.getMousePos().y);
+			pos.add(this._target.clone().multiply(this._force));
 
-	move(vector){
-		this.scriptAttr[this.scriptAttr.indexOf("-Left") + 1] = vector.x;
-		this.scriptAttr[this.scriptAttr.indexOf("-Top") + 1] = vector.y;
-		this._execute();
+			robot.moveMouse(pos.x, pos.y);
+		}, 30); // 30ms
 	}
 }
 

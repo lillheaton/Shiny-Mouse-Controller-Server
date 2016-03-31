@@ -1,25 +1,15 @@
 package com.eols.shinymousecontrollerdroid;
 
 import android.graphics.PointF;
-import android.net.wifi.WifiInfo;
-import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.text.format.Formatter;
-import android.util.Log;
 import android.widget.TextView;
 
 import com.eols.shinymousecontrollerdroid.interfaces.JoystickListener;
 import com.eols.shinymousecontrollerdroid.interfaces.TCPListener;
 import com.eols.shinymousecontrollerdroid.utils.TCPClient;
 import com.eols.shinymousecontrollerdroid.views.Joystick;
-
-import java.math.BigInteger;
-import java.net.Inet4Address;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.nio.ByteOrder;
 
 public class MainActivity extends AppCompatActivity implements JoystickListener {
 
@@ -47,7 +37,7 @@ public class MainActivity extends AppCompatActivity implements JoystickListener 
 
     @Override
     public void onJoystickTouch(float magnitude, PointF angleVector) {
-        this.outputView.setText("Magnitude: " + magnitude + " AngleVec: " + angleVector.toString());
+        this.outputView.setText("Magnitude: " + magnitude + "\nAngleVec: " + angleVector.toString());
 
         if(tcpClient != null){
             tcpClient.sendMessage(
