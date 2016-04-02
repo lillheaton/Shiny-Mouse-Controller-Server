@@ -25,4 +25,22 @@
         app:joystickSize="0.4"
         app:joystickColor="@color/colorAccent" />
 
+    <Button
+        android:id="@+id/left_click_btn"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:text="Left"
+        android:layout_marginLeft="39dp"
+        android:layout_marginBottom="30dp"
+        android:layout_above="@+id/joystick"/>
+
+    <Button
+        android:id="@+id/right_click_btn"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:text="Right"
+        android:layout_marginRight="39dp"
+        android:layout_alignTop="@+id/left_click_btn"
+        android:layout_alignEnd="@+id/output_txt" />
+
 </RelativeLayout>

@@ -34,6 +34,14 @@ class Mouse {
 			robot.moveMouse(pos.x, pos.y);
 		}, 30); // 30ms
 	}
+
+	click(button){
+		if(['left', 'right', 'middle'].indexOf(button) < 0){
+			throw new Error("Not any of the accepted buttons");
+		}
+
+		robot.mouseClick(button);
+	}
 }
 
 module.exports = Mouse;

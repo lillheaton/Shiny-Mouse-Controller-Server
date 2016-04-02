@@ -9,6 +9,7 @@ var Mouse = require('./mouse');
 var Vector = require('./vector');
 var Utils = require('./utils');
 
+var isInputTest = process.argv.indexOf('inputTest') > 0;
 var listeningIp = Utils.getLocalIp();
 var mouse = new Mouse();
 
@@ -36,8 +37,21 @@ var server = net.createServer(socket => {
 
 				switch(obj[i].type){
 					case "joystick":
-						mouse.target = new Vector(obj[i].vector.x, obj[i].vector.y);
-						mouse.force = obj[i].magnitude * 0.1; // decrease the force to 10%
+						if(isInputTest){
+							console.log("Joystick input is sent");
+						} else{
+							mouse.target = new Vector(obj[i].vector.x, obj[i].vector.y);
+							mouse.force = obj[i].magnitude * 0.1; // decrease the force to 10%	
+						}
+						
+						break;
+
+					case "click":
+						if(isInputTest){
+							console.log("Mouse click sent");
+						} else {
+							mouse.click(obj[i].button);
+						}
 
 						break;
 				}
